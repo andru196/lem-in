@@ -3,15 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   lem_in.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
+/*   By: andru196 <andru196@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/23 20:17:21 by andru196          #+#    #+#             */
-/*   Updated: 2019/10/20 17:45:56 by sfalia-f         ###   ########.fr       */
+/*   Updated: 2019/10/23 21:29:27 by andru196         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LEM_IN_H
 # define LEM_IN_H
+
+#define MAX 0x7fffffff
+#define MID 0x3fffffff
+
 
 # include "ft_printf.h"
 # include "libft.h"
