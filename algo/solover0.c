@@ -6,7 +6,7 @@
 /*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/20 17:35:18 by sfalia-f          #+#    #+#             */
-/*   Updated: 2019/10/20 18:15:44 by sfalia-f         ###   ########.fr       */
+/*   Updated: 2019/10/25 21:07:01 by sfalia-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ int				num_check(t_room *dest, int *dists, t_cont *c)
 		return (1);
 	path = dest->path_to_end;
 	i = 0;
-	while (dists[i] != path)
+	while (dists[i] != path + 1)
 		i++;
 	return ((int)c->num_of_ants - c->start->reg > summator(dists, i));
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lem_in.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: andru196 <andru196@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/23 20:17:21 by andru196          #+#    #+#             */
-/*   Updated: 2019/10/23 21:29:27 by andru196         ###   ########.fr       */
+/*   Updated: 2019/10/25 22:11:50 by sfalia-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,6 +167,8 @@ void					cont_initialize(t_cont *cont);
 ** Алгоритмический мусор
 */
 
+int						num_of_rooms(t_room *frst, int path);
+int						num_of_tubes(t_tube *frst, int status);
 void					dist_counter(t_room *start, int len, t_room *finish);
 void					calc(t_room *finish, int len);
 void					router(t_cont *c);

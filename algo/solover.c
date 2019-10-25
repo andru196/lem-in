@@ -6,7 +6,7 @@
 /*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/19 16:43:06 by sfalia-f          #+#    #+#             */
-/*   Updated: 2019/10/20 20:13:29 by sfalia-f         ###   ########.fr       */
+/*   Updated: 2019/10/25 20:42:34 by sfalia-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,11 +54,11 @@ void			path_lem(t_paths *paths)
 	while (++i < paths->len)
 	{
 		j = 0;
-		lentofin = 1;
+		lentofin = paths->path[i]->len - 1;
 		while (++j < paths->path[i]->len - 1)
 		{
 			paths->path[i]->room[j]->path = i;
-			paths->path[i]->room[j]->path_to_end = ++lentofin;
+			paths->path[i]->room[j]->path_to_end = --lentofin;
 		}
 	}
 }

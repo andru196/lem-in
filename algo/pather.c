@@ -6,7 +6,7 @@
 /*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/19 15:44:27 by sfalia-f          #+#    #+#             */
-/*   Updated: 2019/10/24 22:56:55 by sfalia-f         ###   ########.fr       */
+/*   Updated: 2019/10/25 22:34:05 by sfalia-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,16 +81,14 @@ void	move_nxt(t_room *frst, t_room *end)
 }
 
 /*
-** уничтожает неугодных
+** уничтожает way;
 */
-
 void	destroy_path(t_room *r)
 {
+	int 	fl;
 	t_lst	*l;
-	int		fl;
 	t_room	*from;
 
-	
 	fl = 1;
 	while (fl)
 	{
@@ -127,21 +125,20 @@ void	make_path(t_cont *c)
 	c->paths = ft_array(1);
 	while (l)
 	{
-		if (((r = other_room(((t_tube *)l->cont), c->start))->parent != start && r->parent) || r == c->end)
+		if (((r = other_room(((t_tube *)l->cont), c->start))->parent != c->start && r->parent && r->path > -1) || r == c->end)
 		{
 			rms = ft_array(10);
-			r = other_room(l->cont, c->end);
+			//r = other_room(l->cont, c->end);
 			ft_array_push(rms, c->start);
 			while (r != c->end)
 			{
 				ft_array_push(rms, r);
 				r = r->parent;
 			}
-			if (rms->room[1] != c->start)
-				ft_array_push(rms, c->end);
+			ft_array_push(rms, c->end);
 			ft_array_push(c->paths, rms);
 		}
-		else
+		else if (r->path != -1)
 			destroy_path(other_room(((t_tube *)l->cont), c->start));
 		l = l->nxt;
 	}
@@ -149,7 +146,7 @@ void	make_path(t_cont *c)
 
 void	after_makepath(t_cont *c)
 {
-	int 	i;
+	size_t 	i;
 	t_lst	*l;
 	int		f;
 	t_room	*r;
@@ -180,12 +177,15 @@ void	after_makepath(t_cont *c)
 
 void	set_connection(t_room *r, t_room *from, int path)
 {
+	t_room	*rf;
+
 	while (r->parent)
 	{
+		rf = r->parent;
 		r->parent = from;
 		from = r;
-		r->path =  path;
-		r = r->parent;
+		r->path = path;
+		r = rf;
 	}
 }
 
@@ -204,16 +204,6 @@ void	del_links_mod(t_tube *frst)
 			|| (frst->in->path < MID && frst->out->path < MID))
 			&& (frst->in->path != -1 && frst->out->path != -1))
 				frst->status = -1;
-			else if (frst->in->path > MID && frst->out->path < MID && frst->out->path > -1)
-			{
-				frst->status = 1;
-				set_connection(frst->out, frst->in, frst->in->path);
-			}
-			else if (frst->out->path > MID && frst->in->path < MID && frst->in->path > -1)
-			{
-				frst->status = 1;
-				set_connection(frst->in, frst->out, frst->out->path);
-			}
 		}
 		frst = frst->next;
 	}
@@ -234,7 +224,7 @@ void	from_bottom(t_room *end, t_room *start)
 	l = end->tubes;
 	while (l)
 	{
-		t = l->cont;
+		t = l->cont; // много труб со статусом -1
 		if (!t->status && (r = other_room(t, end)) != start)
 		{
 			
@@ -351,13 +341,70 @@ int		num_of_links_mod(t_room *r)
 	if (rez2 == 1 && rez1 == 1 && !rez0 && MID < r->path)
 		return (make_if_end_one(r));
 	if (rez2 == 1 && rez1 == 1 && !rez0 && MID > r->path && r->path > -1)
-		return (make_if_start_one);
+		return (make_if_start_one(r));
 	return (rez0 == 1 && rez1 == 1 && !rez2);
 }
 
 void	move_nxt_mod(t_cont *c)
 {
-	
+	t_room	*r;
+	t_lst	*l;
+	t_room	*or;
+
+	r = c->rooms;
+	while (r)
+	{
+		if (r->path != -1 && r->crossroad && num_of_links_mod(r))
+		{
+			l = r->tubes;
+			while (((t_tube *)l->cont)->status != 0 || (or = other_room(l->cont, r))
+				== r->parent)
+				l = l->nxt;
+			((t_tube *)l->cont)->status = 1;
+			if (or != c->end && or != c->start)
+			{
+				or->parent = r;
+				or->path = r->path;
+			}
+			l = r->tubes;
+			del_links_mod(c->tubes);
+			r = c->rooms;
+		}
+		r = r->next;
+	}
+}
+
+
+void	before_makepath(t_cont *c)
+{
+	t_lst	*l1;
+	t_lst	*l2;
+	t_room	*r1;
+	int		f;
+
+	l1 = c->start->tubes;
+	while (l1)
+	{
+		if ((r1 = other_room(l1->cont, c->start))->path < MID && r1->path > -1)
+		{
+			l2 = c->end->tubes;
+			f = 1;
+			while (l2)
+			{
+				if (other_room(l2->cont, c->end)->path == r1->path)
+					{
+						f = 0;
+						break ;
+					}
+				l2 = l2->nxt;
+			}
+			if (f)
+				destroy_path(r1);
+			else
+				set_connection(other_room(l2->cont, c->end), c->end, r1->path);
+		}
+		l1 = l1->nxt;
+	}
 }
 
 /*
@@ -395,6 +442,8 @@ void	path(t_cont *c)
 	move_nxt(c->rooms, c->end);
 	from_bottom(c->end, c->start);
 	del_links_mod(c->tubes);
+	move_nxt_mod(c);
+	before_makepath(c);
 	make_path(c);
 	after_makepath(c);
 }
