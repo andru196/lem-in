@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pather.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: andru196 <andru196@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/19 15:44:27 by sfalia-f          #+#    #+#             */
-/*   Updated: 2019/10/27 14:35:23 by andru196         ###   ########.fr       */
+/*   Updated: 2019/10/28 01:29:25 by sfalia-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,15 +88,19 @@ void	destroy_path(t_room *r)
 	int 	fl;
 	t_lst	*l;
 	t_room	*from;
+	int		path;
 
 	fl = 1;
+	path = r->path;
+	r->parent = NULL;
+	r->path = -1;
 	while (fl)
 	{
 		fl = 0;
 		l = r->tubes;
 		while (l)
 		{
-			if ((from = (other_room(l->cont, r)))->path == r->path)
+			if ((from = (other_room(l->cont, r)))->path == path)
 			{
 				((t_tube *)l->cont)->status = -1;
 				r->parent = NULL;
@@ -162,7 +166,7 @@ void	after_makepath(t_cont *c)
 			if (c->paths->path[i]->room[c->paths->path[i]->len - 2] == r)
 				f = 0;
 		}
-		if (f)
+		if (f && r->path != -1)
 			destroy_path(r);
 		l = l->nxt;
 	}
@@ -224,14 +228,15 @@ void	from_bottom(t_room *end, t_room *start)
 	l = end->tubes;
 	while (l)
 	{
-		t = l->cont; // много труб со статусом -1
-		if (!t->status && (r = other_room(t, end)) != start)
-		{
-			
+		t = l->cont;
+		if (!t->status && (r = other_room(t, end))->path == -1 && r != start)
+		{		
 			r->path = path--;
 			r->parent = end;
 			t->status = 1;
 		}
+		else if (!t->status && r->path != -1)
+			set_connection(r, end, r->path);
 		l = l->nxt;
 	}
 }
@@ -252,6 +257,7 @@ void	room_disconnect(t_room *r)
 			if (or->path != r->path)
 				t->status = -1;
 		}
+		l = l->nxt;
 	}
 }
 
@@ -278,6 +284,7 @@ int		make_if_start_one(t_room *r)
 				room_disconnect(or);
 			}
 		}
+		l = l->nxt;
 	}
 	return (0);
 }
@@ -305,6 +312,7 @@ int		make_if_end_one(t_room *r)
 				room_disconnect(or);
 			}
 		}
+		l = l->nxt;
 	}
 	return (0);
 }
@@ -405,6 +413,92 @@ void	before_makepath(t_cont *c)
 	}
 }
 
+int			hw_num_tube(t_room *r)
+{
+	int		rez0;
+	int		rez1;
+	t_lst	*l;
+
+	rez0 = 0;
+	rez1 = 0;
+	l = r->tubes;
+	while (l)
+	{
+		if (((t_tube *)l->cont)->status == 1)
+			rez1++;
+		else if (((t_tube *)l->cont)->status == 0)
+			rez0++;
+		l = l->nxt;
+	}
+	return (rez1 == 1 && rez0 > 1);
+}
+
+int			is_in_path(t_room *r, t_cont *c)
+{
+	size_t	i;
+	size_t	j;
+
+	i = -1;
+	while (++i < c->paths->len)
+	{
+		j = -1;
+		while (++j < c->paths->path[i]->len
+		&& c->paths->path[i]->room[j] != r)
+		;
+		if (c->paths->path[i]->room[j] == r)
+				break ;
+	}
+	if (i >= c->paths->len)
+		return (0);
+	while (++j < c->paths->path[i]->len)
+	{
+		if (c->paths->path[i]->room[j]->path > MID)
+			return (hw_num_tube(c->paths->path[i]->room[j]));
+	}
+	return (0);
+}
+
+int			set_svyaz(t_room *r, t_cont *c)
+{
+	size_t	i;
+	size_t	j;
+
+	i = -1;
+	while (++i < c->paths->len)
+	{
+		j = -1;
+		while (++j < c->paths->path[i]->len
+			&& c->paths->path[i]->room[j] != r)
+			;
+		if (c->paths->path[i]->room[j] == r)
+			break ;
+	}
+	while (++j < c->paths->path[i]->len
+			&& c->paths->path[i]->room[j]->path < MID)
+	{
+		c->paths->path[i]->room[j]->path = c->paths->path[i]->room[j - 1]->path;
+		room_disconnect(c->paths->path[i]->room[j - 1]);
+		c->paths->path[i]->room[j]->parent = c->paths->path[i]->room[j - 1];
+	}
+	set_connection(c->paths->path[i]->room[j - 1], c->paths->path[i]->room[j],c->paths->path[i]->room[j]->path);
+	return (1);
+}
+
+int hard_way(t_cont *c)
+{
+	t_room	*r;
+
+	r = c->rooms;
+	while (r)
+	{
+		if (r->path > -1 && r->path < MID && hw_num_tube(r) && r != c->end && r != c->start)
+			if (is_in_path(r, c))
+				return (set_svyaz(r, c));
+		r = r->next;
+	}
+	return (0);
+}
+
 /*
 ** строим маршрут пуская поток по всем путям сразу и обрывая связи между ними
 ** сперва со старта
@@ -419,6 +513,7 @@ void	path(t_cont *c)
 	t_lst	*l;
 	t_room	*r;
 	t_tube	*t;
+	int		f;
 
 	path = 0;
 	l = c->start->tubes;
@@ -439,8 +534,13 @@ void	path(t_cont *c)
 	del_links(c->tubes);
 	move_nxt(c->rooms, c->end, c->tubes);
 	from_bottom(c->end, c->start);
-	del_links_mod(c->tubes);
-	move_nxt_mod(c);
+	f = 1;
+	while (f)
+	{
+		del_links_mod(c->tubes);
+		move_nxt_mod(c);
+		f = hard_way(c);
+	}
 	before_makepath(c);
 	make_path(c);
 	after_makepath(c);

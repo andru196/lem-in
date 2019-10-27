@@ -6,7 +6,7 @@
 /*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/23 20:17:21 by andru196          #+#    #+#             */
-/*   Updated: 2019/10/25 22:11:50 by sfalia-f         ###   ########.fr       */
+/*   Updated: 2019/10/28 00:42:12 by sfalia-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,5 +190,6 @@ void					start_end_exception(t_cont *c);
 int						num_check(t_room *dest, int *dists, t_cont *c);
 void					print_move(t_ant *ant, t_room *dest, int flag);
 void					end_turn(t_tube *frst);
+void					pre_path(t_cont *c);
 
 #endif

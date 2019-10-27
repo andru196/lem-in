@@ -6,7 +6,7 @@
 #    By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/09/28 20:41:38 by ycorrupt          #+#    #+#              #
-#    Updated: 2019/10/20 17:37:20 by sfalia-f         ###   ########.fr        #
+#    Updated: 2019/10/28 00:33:50 by sfalia-f         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,6 +30,7 @@ SRCS_ALGO		=	bfs.c\
 					exept.c\
 					dead.c\
 					pather.c\
+					pather0.c\
 					solover.c\
 					solover0.c\
 					selector.c

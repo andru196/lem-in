@@ -6,13 +6,22 @@
 /*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/23 21:31:07 by andru196          #+#    #+#             */
-/*   Updated: 2019/10/25 20:46:57 by sfalia-f         ###   ########.fr       */
+/*   Updated: 2019/10/28 00:35:55 by sfalia-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "lem_in.h"
 
-int	main(void)
+void	drop_parent(t_room *frst)
+{
+	while (frst)
+	{
+		frst->parent = NULL;
+		frst = frst->next;
+	}
+}
+
+int		main(void)
 {
 	t_cont cont;
 
@@ -23,6 +32,8 @@ int	main(void)
 	deadlock_detect(&cont);
 	bfs(&cont);
 	tunnels(&cont);
+	pre_path(&cont);
+	drop_parent(cont.rooms);
 	path(&cont);
 	solover(&cont);
 	free_cont(&cont);
