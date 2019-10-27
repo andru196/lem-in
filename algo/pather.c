@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pather.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
+/*   By: andru196 <andru196@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/19 15:44:27 by sfalia-f          #+#    #+#             */
-/*   Updated: 2019/10/25 22:34:05 by sfalia-f         ###   ########.fr       */
+/*   Updated: 2019/10/27 14:35:23 by andru196         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ int		num_of_links(t_room *r)
 /*
 ** если комната образует собой туннель идём дальше
 */
-void	move_nxt(t_room *frst, t_room *end)
+void	move_nxt(t_room *frst, t_room *end, t_tube *tfr)
 {
 	t_lst	*l;
 	t_room	*r;
@@ -73,7 +73,7 @@ void	move_nxt(t_room *frst, t_room *end)
 				r->parent = frst;
 				r->path = frst->path;
 			}
-			del_links(l->cont);
+			del_links(tfr);
 			frst = cpy;
 		}
 		frst = frst->next;
@@ -366,14 +366,12 @@ void	move_nxt_mod(t_cont *c)
 				or->parent = r;
 				or->path = r->path;
 			}
-			l = r->tubes;
 			del_links_mod(c->tubes);
 			r = c->rooms;
 		}
 		r = r->next;
 	}
 }
-
 
 void	before_makepath(t_cont *c)
 {
@@ -392,10 +390,10 @@ void	before_makepath(t_cont *c)
 			while (l2)
 			{
 				if (other_room(l2->cont, c->end)->path == r1->path)
-					{
-						f = 0;
-						break ;
-					}
+				{
+					f = 0;
+					break ;
+				}
 				l2 = l2->nxt;
 			}
 			if (f)
@@ -439,7 +437,7 @@ void	path(t_cont *c)
 		l = l->nxt;
 	}
 	del_links(c->tubes);
-	move_nxt(c->rooms, c->end);
+	move_nxt(c->rooms, c->end, c->tubes);
 	from_bottom(c->end, c->start);
 	del_links_mod(c->tubes);
 	move_nxt_mod(c);
