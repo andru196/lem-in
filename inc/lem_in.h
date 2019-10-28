@@ -21,11 +21,35 @@
 # include "libft.h"
 # include <stdio.h>
 
+# define ERR "ERROR"
+# define ERR_ANTS "ERROR: IVALID NUMBER OF ANTS"
+# define ERR_MAP "ERROR: IVALID MAP"
+# define ERR_MAL "ERROR: MALLOC"
+# define ERR_LINE "ERROR: WRONG LINE"
+# define ERR_INV_COORD "ERROR: INVALID COORDINATE"
+# define ERR_INV_NAME "ERROR: INVALID NAME"
+# define ERR_NAME "ERROR: ROOM NAME ALREADY EXISTS"
+# define ERR_COORD "ERROR: COORDINATES ALREADY OCCUPIED"
+# define ERR_START "ERROR: NO START ROOM"
+# define ERR_END "ERROR: NO END ROOM"
+# define ERR_TUBE "ERROR: TUBE CONNECTS THE SAME ROOM"
+# define ERR_ROOM "ERROR: ROOM NAME DOESN'T EXISTS"
+# define ERR_PATH "ERROR: NO PATH TO END" //check leaks
+
 typedef struct s_ant	t_ant;
 typedef enum e_mark		t_mark;
 typedef struct s_rooms	t_rooms;
 typedef struct s_paths	t_paths;
 typedef struct s_room	t_room;
+typedef enum e_bonus    t_bonus;
+
+enum                    e_bonus
+{
+    leaks = 1 << 0,
+    quiet = 1 << 1,
+    stat = 1 << 2,
+    err = 1 << 3
+};
 
 typedef struct			s_lst
 {
@@ -128,6 +152,8 @@ typedef struct			s_cont
 	t_room	*start;
 	t_room	*end;
 	t_paths	*paths;
+    t_bonus bonus;
+    size_t  steps;
 }						t_cont;
 
 /*
@@ -152,15 +178,16 @@ void					read_data(t_cont *cont);
 void					frees_split(char **split);
 void					validate_data(char *line, t_cont *cont,
 						int *comment_flag);
-void					validate_rooms(char **split, int *flag, t_cont *cont);
-void					validate_tubes(char **split, t_cont *cont);
+void                    validate_rooms(char **split, int *flag, t_cont *cont, char *line);
+void                    validate_tubes(char **split, t_cont *cont, char *line);
 void					check_data(t_cont *cont);
+void                    print_error_here(char *err, t_cont *cont, char *l, char **s);
 
 /*
 ** Вывод
 */
 
-void					print_error(char *err);
+void                    print_error(char *err, t_cont *cont);
 void					cont_initialize(t_cont *cont);
 
 /*

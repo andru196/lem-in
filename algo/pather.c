@@ -143,7 +143,7 @@ void	make_path(t_cont *c)
 	t_room	*r;
 	size_t	i;
 	t_rooms	*rms;
-
+//утечка при замене паса строка 149 фт аррей
 	l = c->start->tubes;
 	i = -1;
 	c->paths = ft_array(1);

@@ -49,8 +49,10 @@ void			bfs(t_cont *c)
 	while (++i < queue->len)
 		bfs_queue(queue, queue->room[i]);
 	ft_array_free(queue);
-	if (!c->end->crossroad)
-		print_error("ERROR: NO PATH TO END");
+    if (!c->end->crossroad)
+        print_error(c->bonus & err ? ERR_PATH : ERR, c);
+    else
+        c->bonus & quiet ? ft_isalpha('a') : ft_putendl("");
 }
 
 void			tunnels(t_cont *c)

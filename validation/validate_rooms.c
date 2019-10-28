@@ -6,7 +6,7 @@
 /*   By: ycorrupt <ycorrupt@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/06 15:15:18 by ycorrupt          #+#    #+#             */
-/*   Updated: 2019/10/09 18:05:13 by ycorrupt         ###   ########.fr       */
+/*   Updated: 2019/10/28 21:08:20 by ycorrupt         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,29 +60,29 @@ static void		add_to(int *flag, t_room *new, t_cont *cont)
 	}
 }
 
-void			validate_rooms(char **split, int *flag, t_cont *cont)
+void			validate_rooms(char **splt, int *flag, t_cont *c, char *l)
 {
 	t_room		*new;
 	t_room		*tmp;
 	long		x;
 	long		y;
 
-	tmp = cont->rooms;
-	if ((x = (check_num(split[1]))) == 0xffffffff ||
-							(y = (check_num(split[2]))) == 0xffffffff)
-		print_error("ERROR: INVALID COORDINATE");
-	if (split[0][0] == 'L')
-		print_error("ERROR: INVALID NAME");
+	tmp = c->rooms;
+	if ((x = (check_num(splt[1]))) == 0xffffffff ||
+							(y = (check_num(splt[2]))) == 0xffffffff)
+		print_error_here(c->bonus & err ? ERR_INV_COORD : ERR, c, l, splt);
+	if (splt[0][0] == 'L' || ft_charinstr((const char *)splt[0], '-'))
+		print_error_here(c->bonus & err ? ERR_INV_NAME : ERR, c, l, splt);
 	if (tmp)
 		while (tmp)
 		{
-			if (ft_strequ(split[0], tmp->name))
-				print_error("ERROR: ROOM NAME ALREADY EXISTS");
-			if (tmp->x == x && tmp->y == y)
-				print_error("ERROR: COORDINATES ALREADY OCCUPIED");
+			if (ft_strequ(splt[0], tmp->name))
+				print_error_here(c->bonus & err ? ERR_NAME : ERR, c, l, splt);
+			else if (tmp->x == x && tmp->y == y)
+				print_error_here(c->bonus & err ? ERR_COORD : ERR, c, l, splt);
 			tmp = tmp->next;
 		}
-	if (!(new = newroom(ft_strdup(split[0]), x, y)))
-		print_error("ERROR: MALLOC");
-	add_to(flag, new, cont);
+	if (!(new = newroom(ft_strdup(splt[0]), x, y)))
+		print_error_here(c->bonus & err ? ERR_MAL : ERR, c, l, splt);
+	add_to(flag, new, c);
 }
