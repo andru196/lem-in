@@ -6,7 +6,7 @@
 /*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/19 15:44:27 by sfalia-f          #+#    #+#             */
-/*   Updated: 2019/10/28 01:29:25 by sfalia-f         ###   ########.fr       */
+/*   Updated: 2019/10/28 21:27:58 by sfalia-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,22 @@ void	del_links(t_tube *frst)
 				frst->status = -1;
 		}
 		frst = frst->next;
+	}
+}
+
+void		connect_two_rooms(t_room *r1, t_room *r2)
+{
+	t_lst *l;
+
+	l = r1->tubes;
+	while (l)
+	{
+		if (other_room(l->cont, r1) == r2)
+		{
+			((t_tube *)l->cont)->status = 1;
+			break ;
+		}
+		l = l->nxt;
 	}
 }
 
@@ -106,11 +122,15 @@ void	destroy_path(t_room *r)
 				r->parent = NULL;
 				r->path = -1;
 				fl = 1;
+				from->parent = NULL;
+				from->path = -1;
 				r = from;
+				break ;
 			}
 			l = l->nxt;
 		}
 	}
+
 }
 
 /*
@@ -265,23 +285,26 @@ void	room_disconnect(t_room *r)
 ** устанавливает связь если у комнаты со стартового маршрута нет других не деактивированных связей
 ** r - комната с начала имеющая связь с комнатой с конца
 */
-int		make_if_start_one(t_room *r)
+int		make_if_start_one(t_room **r, t_room *frst)
 {
 	t_lst	*l;
 	t_tube	*t;
 	t_room	*or;
 
-	l = r->tubes;
+	l = (*r)->tubes;
 	while (l)
 	{
 		t = l->cont;
 		if (t->status == 0)
 		{
-			or = other_room(t, r);
+			or = other_room(t, (*r));
 			if (or->path > MID)
 			{
-				set_connection(r, or, or->path);
+				set_connection((*r), or, or->path);
 				room_disconnect(or);
+				connect_two_rooms(*r, or);
+				*r = frst;
+				break ;
 			}
 		}
 		l = l->nxt;
@@ -293,23 +316,26 @@ int		make_if_start_one(t_room *r)
 ** устанавливает связь, если у финишного маршрута нет других связей
 ** (как в функции сверху, лень делать универсальную, да и хуй с ним, пир все равно питух)
 */
-int		make_if_end_one(t_room *r)
+int		make_if_end_one(t_room **r, t_room *frst)
 {
 	t_lst	*l;
 	t_tube	*t;
 	t_room	*or;
 
-	l = r->tubes;
+	l = (*r)->tubes;
 	while (l)
 	{
 		t = l->cont;
 		if (t->status == 0)
 		{
-			or = other_room(t, r);
+			or = other_room(t, (*r));
 			if (or->path < MID && or->path != -1)
 			{
-				set_connection(or, r, or->path);
+				set_connection(or, (*r), (*r)->path);
 				room_disconnect(or);
+				connect_two_rooms(*r, or);
+				*r = frst;
+				break ;
 			}
 		}
 		l = l->nxt;
@@ -317,10 +343,44 @@ int		make_if_end_one(t_room *r)
 	return (0);
 }
 
+int		trash_link_check(t_room *r, t_room **r2, t_room *from)
+{
+	t_lst	*l;
+	t_tube	*t;
+	t_room	*or;
+	t_room	*rr;
+	
+	rr = NULL;
+	if (!r2)
+		r2 = &rr;
+	l = r->tubes;
+	while (l)
+	{
+		t = l->cont;
+		if (!t->status)
+		{
+			if ((or = other_room(t, r))->path == -1)
+			{
+				if (or != from && trash_link_check(or, r2, r) == 0)
+					return (0);
+			}
+			else if (or->path != -1 && or != from)
+			{
+				if (!*r2)
+					*r2 = or;
+				else if (or->path != (*r2)->path)
+					return (0);
+			}
+		}
+		l = l->nxt;
+	}
+	return (1);
+}
+
 /*
 ** посчитает, можно ли связывать
 */
-int		num_of_links_mod(t_room *r)
+int		num_of_links_mod(t_room **r, t_room *frst)
 {
 	int		rez1;
 	int		rez2;
@@ -329,27 +389,30 @@ int		num_of_links_mod(t_room *r)
 	t_tube	*t;
 	t_room	*or;
 
-	l = r->tubes;
+	l = (*r)->tubes;
 	rez0 = 0;
 	rez1 = 0;
 	rez2 = 0;
 	while (l)
 	{
 		t = (t_tube *)l->cont;
-		or = other_room(t, r);
-		if (r->path > -1 && or->path > -1 && ((r->path > MID && or->path < MID)
-		|| (or->path > MID && r->path < MID)))
+		or = other_room(t, *r);
+		if ((*r)->path > -1 && or->path > -1 && (((*r)->path > MID && or->path < MID)
+		|| (or->path > MID && (*r)->path < MID)))
 				rez2++;
-		if (t->status == 0)
+		else if (t->status == 0)
 			rez0++;
 		else if (t->status == 1)
 			rez1++;
 		l = l->nxt;
 	}
-	if (rez2 == 1 && rez1 == 1 && !rez0 && MID < r->path)
-		return (make_if_end_one(r));
-	if (rez2 == 1 && rez1 == 1 && !rez0 && MID > r->path && r->path > -1)
-		return (make_if_start_one(r));
+	if (rez2 && (!rez0 || (trash_link_check(*r, NULL, NULL))))
+	{
+		if (rez2 == 1 && rez1 == 1 && MID < (*r)->path)
+			return (make_if_end_one(r, frst));
+		if (rez2 == 1 && rez1 == 1 && MID > (*r)->path && (*r)->path > -1)
+			return (make_if_start_one(r, frst));
+	}
 	return (rez0 == 1 && rez1 == 1 && !rez2);
 }
 
@@ -362,7 +425,7 @@ void	move_nxt_mod(t_cont *c)
 	r = c->rooms;
 	while (r)
 	{
-		if (r->path != -1 && r->crossroad && num_of_links_mod(r))
+		if (r->path != -1 && r->crossroad && num_of_links_mod(&r, c->rooms))
 		{
 			l = r->tubes;
 			while (((t_tube *)l->cont)->status != 0 || (or = other_room(l->cont, r))
@@ -443,7 +506,8 @@ int			is_in_path(t_room *r, t_cont *c)
 	{
 		j = -1;
 		while (++j < c->paths->path[i]->len
-		&& c->paths->path[i]->room[j] != r)
+		&&
+		 c->paths->path[i]->room[j] != r)
 		;
 		if (c->paths->path[i]->room[j] == r)
 				break ;
@@ -476,10 +540,12 @@ int			set_svyaz(t_room *r, t_cont *c)
 	while (++j < c->paths->path[i]->len
 			&& c->paths->path[i]->room[j]->path < MID)
 	{
+		connect_two_rooms(c->paths->path[i]->room[j - 1], c->paths->path[i]->room[j]);
 		c->paths->path[i]->room[j]->path = c->paths->path[i]->room[j - 1]->path;
 		room_disconnect(c->paths->path[i]->room[j - 1]);
 		c->paths->path[i]->room[j]->parent = c->paths->path[i]->room[j - 1];
 	}
+	connect_two_rooms(c->paths->path[i]->room[j - 1], c->paths->path[i]->room[j]);
 	set_connection(c->paths->path[i]->room[j - 1], c->paths->path[i]->room[j],c->paths->path[i]->room[j]->path);
 	return (1);
 }
