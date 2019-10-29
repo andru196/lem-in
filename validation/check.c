@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   check.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ycorrupt <ycorrupt@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/06 17:31:43 by ycorrupt          #+#    #+#             */
-/*   Updated: 2019/10/20 18:14:01 by sfalia-f         ###   ########.fr       */
+/*   Updated: 2019/10/20 19:26:13 by ycorrupt         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void			check_data(t_cont *cont)
 	cont->num_of_rooms = count_rooms(cont);
 	cont->num_of_tubes = count_tubes(cont);
 	if (!cont->num_of_rooms || !cont->num_of_tubes)
-		print_error("ERROR: INVALID MAP");
+		print_error("ERROR: INVALID MAP", cont);
 	tmp = cont->end->tubes;
 	ant_initialize(cont);
 }
