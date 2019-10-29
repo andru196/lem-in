@@ -6,7 +6,7 @@
 /*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/19 15:44:27 by sfalia-f          #+#    #+#             */
-/*   Updated: 2019/10/29 17:17:24 by sfalia-f         ###   ########.fr       */
+/*   Updated: 2019/10/29 17:24:18 by sfalia-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,25 +170,31 @@ void	make_path(t_cont *c)
 
 void	after_makepath(t_cont *c)
 {
-	size_t 	i;
-	t_lst	*l;
+	t_lst	*l1;
+	t_lst	*l2;
+	t_room	*r1;
 	int		f;
-	t_room	*r;
 
-	l = c->end->tubes;
-	while (l)
+	l1 = c->end->tubes;
+	while (l1)
 	{
-		i = -1;
-		f = 1;
-		r = other_room(l->cont, c->end);
-		while (++i < c->paths->len)
+		if ((r1 = other_room(l1->cont, c->end))->path < MID && r1->path > -1)
 		{
-			if (c->paths->path[i]->room[c->paths->path[i]->len - 2] == r)
-				f = 0;
+			l2 = c->start->tubes;
+			f = 1;
+			while (l2)
+			{
+				if (other_room(l2->cont, c->start)->path == r1->path)
+				{
+					f = 0;
+					break ;
+				}
+				l2 = l2->nxt;
+			}
+			if (f)
+				destroy_path(r1);
 		}
-		if (f && r->path != -1)
-			destroy_path(r);
-		l = l->nxt;
+		l1 = l1->nxt;
 	}
 }
 
