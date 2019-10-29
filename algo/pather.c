@@ -6,7 +6,7 @@
 /*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/19 15:44:27 by sfalia-f          #+#    #+#             */
-/*   Updated: 2019/10/28 21:27:58 by sfalia-f         ###   ########.fr       */
+/*   Updated: 2019/10/29 17:17:24 by sfalia-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -343,7 +343,41 @@ int		make_if_end_one(t_room **r, t_room *frst)
 	return (0);
 }
 
-int		trash_link_check(t_room *r, t_room **r2, t_room *from)
+int		it_in(t_room *from[SIZE_B], t_room *r)
+{
+	int i;
+
+	i = -1;
+	while (++i < SIZE_B && from[i])
+		if (from[i] == r)
+			return (1);
+	return (0);
+}
+
+t_room	**insert(t_room *from[SIZE_B], t_room *r)
+{
+	int i;
+
+	i = -1;
+	while (++i < SIZE_B && from[i])
+		;
+	if (i < SIZE_B)
+		from[i] = r;
+	return (from);
+}
+
+int		del_last(t_room *from[SIZE_B], int ret)
+{
+	int	i;
+
+	i = -1;
+	while (++i < SIZE_B && from[i])
+		;
+	from[i - 1] = 0;
+	return (ret);
+}
+
+int		trash_link_check(t_room *r, t_room **r2, t_room *from[SIZE_B])
 {
 	t_lst	*l;
 	t_tube	*t;
@@ -361,20 +395,20 @@ int		trash_link_check(t_room *r, t_room **r2, t_room *from)
 		{
 			if ((or = other_room(t, r))->path == -1)
 			{
-				if (or != from && trash_link_check(or, r2, r) == 0)
-					return (0);
+				if (!it_in(from, or) && trash_link_check(or, r2, insert(from, r)) == 0)
+					return (del_last(from, 0));
 			}
-			else if (or->path != -1 && or != from)
+			else if (or->path != -1 && !it_in(from, or))
 			{
 				if (!*r2)
 					*r2 = or;
 				else if (or->path != (*r2)->path)
-					return (0);
+					return (del_last(from, 0));
 			}
 		}
 		l = l->nxt;
 	}
-	return (1);
+	return (del_last(from, 1));
 }
 
 /*
@@ -406,7 +440,10 @@ int		num_of_links_mod(t_room **r, t_room *frst)
 			rez1++;
 		l = l->nxt;
 	}
-	if (rez2 && (!rez0 || (trash_link_check(*r, NULL, NULL))))
+	t_room *from[SIZE_B];
+	if (rez0)
+		ft_bzero(from, sizeof(t_room *) * 5000);
+	if (rez2 && (!rez0 || (trash_link_check(*r, NULL, from))))
 	{
 		if (rez2 == 1 && rez1 == 1 && MID < (*r)->path)
 			return (make_if_end_one(r, frst));

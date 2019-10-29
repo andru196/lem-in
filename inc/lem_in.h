@@ -6,7 +6,7 @@
 /*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/23 20:17:21 by andru196          #+#    #+#             */
-/*   Updated: 2019/10/28 00:42:12 by sfalia-f         ###   ########.fr       */
+/*   Updated: 2019/10/29 16:53:53 by sfalia-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #define MAX 0x7fffffff
 #define MID 0x3fffffff
-
+#define SIZE_B 5000
 
 # include "ft_printf.h"
 # include "libft.h"
