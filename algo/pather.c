@@ -6,7 +6,7 @@
 /*   By: sfalia-f <sfalia-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/19 15:44:27 by sfalia-f          #+#    #+#             */
-/*   Updated: 2019/10/29 17:24:18 by sfalia-f         ###   ########.fr       */
+/*   Updated: 2019/10/29 17:28:12 by sfalia-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -651,6 +651,6 @@ void	path(t_cont *c)
 		f = hard_way(c);
 	}
 	before_makepath(c);
-	make_path(c);
 	after_makepath(c);
+	make_path(c);
 }
